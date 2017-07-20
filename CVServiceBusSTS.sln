@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26711.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CVServiceBusSTS", "CVServiceBusSTS\CVServiceBusSTS.csproj", "{8AEE44F5-6B7E-4669-BDE1-524EF55CE018}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceBus.SasTokenService", "CVServiceBusSTS\Microsoft.ServiceBus.SasTokenService.csproj", "{8AEE44F5-6B7E-4669-BDE1-524EF55CE018}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "STSClient", "STSClient\STSClient.csproj", "{E9582469-2AF5-454A-B249-D51C33D44322}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{8AEE44F5-6B7E-4669-BDE1-524EF55CE018}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AEE44F5-6B7E-4669-BDE1-524EF55CE018}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AEE44F5-6B7E-4669-BDE1-524EF55CE018}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9582469-2AF5-454A-B249-D51C33D44322}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9582469-2AF5-454A-B249-D51C33D44322}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9582469-2AF5-454A-B249-D51C33D44322}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9582469-2AF5-454A-B249-D51C33D44322}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
