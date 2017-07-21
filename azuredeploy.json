@@ -1,0 +1,293 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "serviceBusNamespaceName": {
+      "type": "string"
+    },
+    "functionAppName": {
+      "defaultValue": "[concat(parameters('servicebusNamespaceName'), 'sts')]",
+      "type": "string"
+    },
+    "functionAppConsumptionPlanName": {
+      "defaultValue": "[concat(parameters('functionAppName'), resourceGroup().location, 'site')]",
+      "type": "string"
+    },
+    "AuthorizationRules_send_name": {
+      "defaultValue": "[concat(parameters('servicebusNamespaceName'), '/send')]",
+      "type": "string"
+    },
+    "AuthorizationRules_listen_name": {
+      "defaultValue": "[concat(parameters('servicebusNamespaceName'), '/listen')]",
+      "type": "string"
+    },
+    "AuthorizationRules_sendlisten_name": {
+      "defaultValue": "[concat(parameters('servicebusNamespaceName'), '/sendlisten')]",
+      "type": "string"
+    },
+    "AuthorizationRules_manage_name": {
+      "defaultValue": "[concat(parameters('servicebusNamespaceName'), '/manage')]",
+      "type": "string"
+    },
+    "config_web_name": {
+      "defaultValue": "[concat(parameters('functionAppName'), '/web')]",
+      "type": "string"
+    },
+    "hostNameBindings": {
+      "defaultValue": "[concat(parameters('functionAppName'), '/', parameters('functionAppName'), '.azurewebsites.net')]",
+      "type": "string"
+    }
+  },
+  "variables": {
+    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
+    "storageAccountid": "[concat(resourceGroup().id,'/providers/','Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.ServiceBus/namespaces",
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard"
+      },
+      "kind": "Messaging",
+      "name": "[parameters('serviceBusNamespaceName')]",
+      "apiVersion": "2015-08-01",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "scale": null,
+      "properties": {
+        "enabled": true
+      },
+      "dependsOn": []
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "kind": "Storage",
+      "name": "[variables('storageAccountName')]",
+      "apiVersion": "2016-01-01",
+      "location": "[resourceGroup().location]",
+      "tags": {},
+      "scale": null,
+      "properties": {},
+      "dependsOn": []
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "sku": {
+        "name": "Y1",
+        "tier": "Dynamic",
+        "size": "Y1",
+        "family": "Y",
+        "capacity": 0
+      },
+      "kind": "functionapp",
+      "name": "[parameters('functionAppConsumptionPlanName')]",
+      "apiVersion": "2016-09-01",
+      "location": "[resourceGroup().location]",
+      "scale": null,
+      "properties": {
+        "name": "[parameters('functionAppConsumptionPlanName')]"      
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', parameters('serviceBusNamespaceName'), 'send')]",
+        "[resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', parameters('serviceBusNamespaceName'), 'listen')]",
+        "[resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', parameters('serviceBusNamespaceName'), 'sendlisten')]",
+        "[resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', parameters('serviceBusNamespaceName'), 'manage')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "kind": "functionapp",
+      "name": "[parameters('functionAppName')]",
+      "apiVersion": "2016-08-01",
+      "location": "[resourceGroup().location]",
+      "scale": null,
+      "properties": {
+        "enabled": true,
+        "hostNameSslStates": [
+          {
+            "name": "[concat(parameters('functionAppName'),'.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Standard"
+          },
+          {
+            "name": "[concat(parameters('functionAppName'),'.scm.azurewebsites.net')]",
+            "sslState": "Disabled",
+            "hostType": "Repository"
+          }
+        ],
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('functionAppConsumptionPlanName'))]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "AzureWebJobsDashboard",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountid'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[toLower(parameters('functionAppName'))]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~1"
+            },
+            {
+              "name": "WEBSITE_NODE_DEFAULT_VERSION",
+              "value": "6.5.0"
+            },
+            {
+              "name": "ServiceBusNamespace",
+              "value": "[concat(parameters('serviceBusNamespaceName'),'.servicebus.windows.net')]"
+            },
+            {
+              "name": "ServiceBusSend",
+              "value": "[concat('send:',listkeys(resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', parameters('serviceBusNamespaceName'), 'send'),'2015-08-01').primaryKey)]"
+            },
+            {
+              "name": "ServiceBusListen",
+              "value": "[concat('listen:',listkeys(resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', parameters('serviceBusNamespaceName'), 'listen'),'2015-08-01').primaryKey)]"
+            },
+            {
+              "name": "ServiceBusSendListen",
+              "value": "[concat('sendlisten:',listkeys(resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', parameters('serviceBusNamespaceName'), 'sendlisten'),'2015-08-01').primaryKey)]"
+            },
+            {
+              "name": "ServiceBusManage",
+              "value": "[concat('manage:',listkeys(resourceId('Microsoft.ServiceBus/namespaces/AuthorizationRules', parameters('serviceBusNamespaceName'), 'manage'),'2015-08-01').primaryKey)]"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('functionAppConsumptionPlanName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
+      "name": "[parameters('AuthorizationRules_send_name')]",
+      "apiVersion": "2015-08-01",
+      "scale": null,
+      "properties": {
+        "rights": [
+          "Send"
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBusNamespaceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
+      "name": "[parameters('AuthorizationRules_listen_name')]",
+      "apiVersion": "2015-08-01",
+      "scale": null,
+      "properties": {
+        "rights": [
+          "Listen"
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBusNamespaceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
+      "name": "[parameters('AuthorizationRules_sendlisten_name')]",
+      "apiVersion": "2015-08-01",
+      "scale": null,
+      "properties": {
+        "rights": [
+          "Listen",
+          "Send"
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBusNamespaceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
+      "name": "[parameters('AuthorizationRules_manage_name')]",
+      "apiVersion": "2015-08-01",
+      "scale": null,
+      "properties": {
+        "rights": [
+          "Manage",
+          "Listen",
+          "Send"
+        ]
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.ServiceBus/namespaces', parameters('serviceBusNamespaceName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "name": "[parameters('config_web_name')]",
+      "apiVersion": "2016-08-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "numberOfWorkers": 1,
+        "defaultDocuments": [
+          "Default.htm",
+          "Default.html",
+          "Default.asp",
+          "index.htm",
+          "index.html",
+          "iisstart.htm",
+          "default.aspx",
+          "index.php",
+          "hostingstart.html"
+        ],
+        "netFrameworkVersion": "v4.0",
+        "managedPipelineMode": "Integrated",
+        "virtualApplications": [
+          {
+            "virtualPath": "/",
+            "physicalPath": "site\\wwwroot",
+            "preloadEnabled": false,
+          }
+        ],
+        "siteAuthEnabled": false,
+        "cors": {
+          "allowedOrigins": [
+            "https://functions.azure.com",
+            "https://functions-staging.azure.com",
+            "https://functions-next.azure.com"
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/sites/hostNameBindings",
+      "name": "[parameters('hostNameBindings')]",
+      "apiVersion": "2016-08-01",
+      "location": "[resourceGroup().location]",
+      "scale": null,
+      "properties": {
+        "siteName": "[parameters('functionAppName')]",
+        "domainId": null,
+        "hostNameType": "Verified"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+      ]
+    }
+  ]
+}

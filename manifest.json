@@ -1,0 +1,34 @@
+...
+  
+  "appRoles": [
+  {
+    "allowedMemberTypes": [
+      "Application"
+    ],
+    "displayName": "Manage Service Bus",
+    "id": "17a67f38-b915-40bb-bd09-228a5c8a9973",
+    "isEnabled": true,
+    "description": "Allows applications to manage Service Bus",
+    "value": "Manage"
+  },
+  {
+    "allowedMemberTypes": [
+      "Application"
+    ],
+    "displayName": "Receive messages from Service Bus",
+    "id": "17a67f38-b915-40bb-bd09-228a5c8a9972",
+    "isEnabled": true,
+    "description": "Allows applications to receive from Service Bus",
+    "value": "Listen"
+  },
+  {
+    "allowedMemberTypes": [
+      "Application"
+    ],
+    "displayName": "Send messages into Service Bus",
+    "id": "17a67f38-b915-40bb-bd09-228a5c8a9971",
+    "isEnabled": true,
+    "description": "Allows applications to send to Service Bus",
+    "value": "Send"
+  }
+] ...

@@ -94,10 +94,11 @@ namespace Microsoft.ServiceBus.ActiveDirectorySasTokenFunction
             return new Tuple<string, string>(permissionRuleKeyValue[0].Trim(), permissionRuleKeyValue[1].Trim());
         }
 
-        public static string GetSetting(string name)
+        static string GetSetting(string name)
         {
             return Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.Process);
         }
+
         public class TokenRequestData
         {
             public string Path { get; set; }

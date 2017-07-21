@@ -3,9 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26711.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceBus.ActiveDirectorySasTokenFunction", "CVServiceBusSTS\Microsoft.ServiceBus.ActiveDirectorySasTokenFunction.csproj", "{8AEE44F5-6B7E-4669-BDE1-524EF55CE018}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.ServiceBus.ActiveDirectorySasTokenFunction", "Microsoft.ServiceBus.ActiveDirectorySasTokenFunction\Microsoft.ServiceBus.ActiveDirectorySasTokenFunction.csproj", "{8AEE44F5-6B7E-4669-BDE1-524EF55CE018}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "STSClient", "STSClient\STSClient.csproj", "{E9582469-2AF5-454A-B249-D51C33D44322}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B510203C-D8A6-4730-8DB2-404D790A8AB4}"
+	ProjectSection(SolutionItems) = preProject
+		azuredeploy.json = azuredeploy.json
+		azuredeploy.parameters.json = azuredeploy.parameters.json
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AzureActiveDirectory", "AzureActiveDirectory", "{F14615EE-DC1A-453D-9101-6DA17926DAF6}"
+	ProjectSection(SolutionItems) = preProject
+		manifest.json = manifest.json
+	EndProjectSection
+	ProjectSection(FolderGlobals) = preProject
+		__JSONSchema = 
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
