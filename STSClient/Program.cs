@@ -39,7 +39,7 @@ namespace STSClient
             string token = tsc.GetServiceBusToken("/", "send").GetAwaiter().GetResult();
             if (token != null)
             {
-                var sbc = ServiceBusConnectionStringBuilder.CreateUsingSharedAccessSignature(new Uri("sb://clemensv8.servicebus.windows.net"), "myqueue", "me", token);
+                var sbc = ServiceBusConnectionStringBuilder.CreateUsingSharedAccessSignature(new Uri("sb://clemensv102.servicebus.windows.net"), "myqueue", "me", token);
                 var qc = QueueClient.CreateFromConnectionString(sbc);
                 qc.Send(new BrokeredMessage());
                 qc.Close();
