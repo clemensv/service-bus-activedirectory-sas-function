@@ -61,5 +61,11 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CVServiceBusSTS\Microsoft.ServiceBus.ActiveDirectorySasTokenFunction.csproj">
+      <Project>{8aee44f5-6b7e-4669-bde1-524ef55ce018}</Project>
+      <Name>Microsoft.ServiceBus.ActiveDirectorySasTokenFunction</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

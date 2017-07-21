@@ -4,9 +4,7 @@
 // - `Permission` - *optional*. Default value is read permissions. The format matches the enum values of SharedAccessBlobPermissions. 
 //    Possible values are "Send", "Listen", "Manage", "SendListen". Comma-separate multiple permissions, such as "Read, Write, Create".
 
-
-
-namespace Microsoft.ServiceBus.SasTokenService
+namespace Microsoft.ServiceBus.ActiveDirectorySasTokenFunction
 {
     using System;
     using System.IO;

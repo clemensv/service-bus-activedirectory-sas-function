@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26711.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceBus.SasTokenService", "CVServiceBusSTS\Microsoft.ServiceBus.SasTokenService.csproj", "{8AEE44F5-6B7E-4669-BDE1-524EF55CE018}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.ServiceBus.ActiveDirectorySasTokenFunction", "CVServiceBusSTS\Microsoft.ServiceBus.ActiveDirectorySasTokenFunction.csproj", "{8AEE44F5-6B7E-4669-BDE1-524EF55CE018}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "STSClient", "STSClient\STSClient.csproj", "{E9582469-2AF5-454A-B249-D51C33D44322}"
 EndProject
