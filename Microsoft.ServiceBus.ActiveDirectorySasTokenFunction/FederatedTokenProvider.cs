@@ -5,6 +5,7 @@
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
+    
 
     public class FederatedTokenProvider : TokenProvider 
     {
@@ -14,7 +15,7 @@
         readonly string serviceBusStsId;
 
         public FederatedTokenProvider(string authority, string serviceBusSts, string serviceBusStsId, string clientId, string appKey)
-            :base(false, true)
+            :base(true, true)
         {
             authContext = new AuthenticationContext(authority);
             clientCredential = new ClientCredential(clientId, appKey);
@@ -69,30 +70,61 @@
                 {
                     return await response.Content.ReadAsStringAsync();
                 }
+                else
+                {
+                    throw new UnauthorizedAccessException("Authenticated client not permitted");
+                }
             }
-            return null;
+            else
+            {
+                throw new UnauthorizedAccessException("Unable to authenticate");
+            }
         }
 
         protected override IAsyncResult OnBeginGetToken(string appliesTo, string action, TimeSpan timeout, AsyncCallback callback, object state)
         {
-            throw new NotImplementedException();
+            return GetToken(appliesTo, action, callback, state);
         }
 
         protected override IAsyncResult OnBeginGetWebToken(string appliesTo, string action, TimeSpan timeout, AsyncCallback callback, object state)
         {
+            return GetToken(appliesTo, action, callback, state);
+        }
+
+        private IAsyncResult GetToken(string appliesTo, string action, AsyncCallback callback, object state)
+        {
             UriBuilder ub = new UriBuilder(appliesTo);
-            return GetServiceBusToken(ub.Path, action);
+            var task = GetServiceBusToken(ub.Path, action);
+            var tcs = new TaskCompletionSource<string>(state);
+            task.ContinueWith(t =>
+            {
+                if (t.IsFaulted)
+                    tcs.TrySetException(t.Exception.InnerExceptions);
+                else if (t.IsCanceled)
+                    tcs.TrySetCanceled();
+                else
+                    tcs.TrySetResult(t.Result);
+
+                if (callback != null)
+                    callback(tcs.Task);
+            }, TaskScheduler.Default);
+            return tcs.Task;
         }
 
         protected override System.IdentityModel.Tokens.SecurityToken OnEndGetToken(IAsyncResult result, out DateTime cacheUntil)
         {
-            throw new NotImplementedException();
+            var sasToken = new SharedAccessSignatureToken(((Task<string>)result).Result);
+            cacheUntil = sasToken.ExpiresOn;
+            return sasToken;
         }
 
         protected override string OnEndGetWebToken(IAsyncResult result, out DateTime cacheUntil)
         {
-            cacheUntil = DateTime.MinValue;
-            return ((Task<string>)result).Result;
+            var tokenString = ((Task<string>)result).Result;
+            var sasToken = new SharedAccessSignatureToken(tokenString);
+            cacheUntil = sasToken.ExpiresOn;
+            return tokenString;
         }
+        
     }
 }
