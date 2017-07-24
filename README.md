@@ -83,14 +83,8 @@ static async Task<bool> IsCallerAuthorizedAsync(string serviceBusNamespace, stri
         principal?.Identity?.IsAuthenticated == true)
     {
         var appId = GetSetting("WEBSITE_AUTH_CLIENT_ID");
-#if LOGCLAIMS
-        log.Info($"Principal Type: {principal.Identity?.AuthenticationType} IsAuth: {principal.Identity?.IsAuthenticated} Name: {principal.Identity?.Name}");
-#endif
         foreach (var claim in principal.Claims)
         {
-#if LOGCLAIMS
-            log.Info($"Claim Issuer: {claim.Type} Value: {claim.Value}");
-#endif
             if (claim.Type.Equals("aud", StringComparison.InvariantCultureIgnoreCase) &&
                 claim.Value.Equals(appId, StringComparison.InvariantCultureIgnoreCase))
             {
@@ -99,7 +93,8 @@ static async Task<bool> IsCallerAuthorizedAsync(string serviceBusNamespace, stri
         }
     }
     return false;
-}```
+}
+```
 
 This function can be fitted with a custom set of rules that allows specific entity permissions for 
 certain principals, which may be stored in a database. 
