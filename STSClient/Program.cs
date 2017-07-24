@@ -35,7 +35,7 @@ namespace STSClient
         static void Main(string[] args)
         {
 
-            var tsc = new TokenServiceClient(authority, serviceBusSts, serviceBusStsId, clientId, appKey);
+            var tsc = new FederatedTokenProvider(authority, serviceBusSts, serviceBusStsId, clientId, appKey);
             string token = tsc.GetServiceBusToken("/", "send").GetAwaiter().GetResult();
             if (token != null)
             {

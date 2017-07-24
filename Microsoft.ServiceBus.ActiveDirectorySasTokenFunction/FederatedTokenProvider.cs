@@ -6,22 +6,22 @@
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
 
-    public class TokenServiceClient
+    public class FederatedTokenProvider : TokenProvider 
     {
         AuthenticationContext authContext;
         ClientCredential clientCredential;
         readonly string serviceBusSts;
         readonly string serviceBusStsId;
 
-        public TokenServiceClient(string authority, string serviceBusSts, string serviceBusStsId, string clientId, string appKey)
+        public FederatedTokenProvider(string authority, string serviceBusSts, string serviceBusStsId, string clientId, string appKey)
+            :base(false, true)
         {
             authContext = new AuthenticationContext(authority);
             clientCredential = new ClientCredential(clientId, appKey);
             this.serviceBusSts = serviceBusSts;
             this.serviceBusStsId = serviceBusStsId;
         }
-
-        
+              
 
         public async Task<string> GetServiceBusToken(string path, string permission)
         {
@@ -73,5 +73,26 @@
             return null;
         }
 
+        protected override IAsyncResult OnBeginGetToken(string appliesTo, string action, TimeSpan timeout, AsyncCallback callback, object state)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override IAsyncResult OnBeginGetWebToken(string appliesTo, string action, TimeSpan timeout, AsyncCallback callback, object state)
+        {
+            UriBuilder ub = new UriBuilder(appliesTo);
+            return GetServiceBusToken(ub.Path, action);
+        }
+
+        protected override System.IdentityModel.Tokens.SecurityToken OnEndGetToken(IAsyncResult result, out DateTime cacheUntil)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override string OnEndGetWebToken(IAsyncResult result, out DateTime cacheUntil)
+        {
+            cacheUntil = DateTime.MinValue;
+            return ((Task<string>)result).Result;
+        }
     }
 }

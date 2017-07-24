@@ -7,12 +7,16 @@
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions" Version="2.1.0-beta1" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="1.0.0-beta1" />
     <PackageReference Include="Microsoft.Azure.WebJobs.ServiceBus" Version="2.1.0-beta1" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="15.3.0-preview-000388-01" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.3.0-preview-000388-01" />
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="3.14.1" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.0-alpha6" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
     <PackageReference Include="WindowsAzure.ServiceBus" Version="4.1.2" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.IdentityModel" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
