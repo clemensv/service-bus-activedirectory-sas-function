@@ -18,13 +18,13 @@ namespace STSClient
 
         static string serviceBusStsAppId = "111111111-2222-3333-4444-555555555555"; // STS app-id from portal
         static string serviceBusSts = "https://[SB-NAMESPACE-NAME]sts.azurewebsites.net"; // STS endpoint
-
+        
         static void Main(string[] args)
         {
 
             var tokenProvider = new FederatedTokenProvider(authority, serviceBusSts, serviceBusStsAppId, clientId, appKey);
             var factory = MessagingFactory.Create("sb://[SB-NAMESPACE-NAME].servicebus.windows.net", tokenProvider );
-
+            
             // you have to create this queue first
             var qc = factory.CreateQueueClient("myqueue");
             qc.Send(new BrokeredMessage());

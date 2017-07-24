@@ -1,4 +1,4 @@
-# Service Bus SAS Token Function for Azure Active Directory 
+# Service Bus SAS STS Function for Azure Active Directory 
 
 This project implements an Azure Function acting as a Security 
 Token Service (STS) that will issue Azure Service Bus, Azure Relay, 
@@ -73,14 +73,33 @@ For code deployment guidance see the [Azure Functions documentation](https://blo
 ## Customizing the Function
 
 As is, the function code will authorize every called with a valid claims principal to 
-acquire a token. The authorization step is separated into the folloiwng method:
+acquire a token. The authorization step is separated into the following method, which
+verifies that the caller presented a valid AAD token:
 
 ``` C#
-static async Task<bool> IsCallerAuthorizedAsync(string serviceBusNamespace, string path, string requestedPermission, ClaimsPrincipal principal)
+static async Task<bool> IsCallerAuthorizedAsync(string serviceBusNamespace, string path, string requestedPermission, ClaimsPrincipal principal, TraceWriter log)
 {
-    return principal != null;
-}
-```
+    if (principal?.Identity?.AuthenticationType.Equals("aad") == true &&
+        principal?.Identity?.IsAuthenticated == true)
+    {
+        var appId = GetSetting("WEBSITE_AUTH_CLIENT_ID");
+#if LOGCLAIMS
+        log.Info($"Principal Type: {principal.Identity?.AuthenticationType} IsAuth: {principal.Identity?.IsAuthenticated} Name: {principal.Identity?.Name}");
+#endif
+        foreach (var claim in principal.Claims)
+        {
+#if LOGCLAIMS
+            log.Info($"Claim Issuer: {claim.Type} Value: {claim.Value}");
+#endif
+            if (claim.Type.Equals("aud", StringComparison.InvariantCultureIgnoreCase) &&
+                claim.Value.Equals(appId, StringComparison.InvariantCultureIgnoreCase))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}```
 
 This function can be fitted with a custom set of rules that allows specific entity permissions for 
 certain principals, which may be stored in a database. 

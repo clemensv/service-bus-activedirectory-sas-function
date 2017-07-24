@@ -33,7 +33,7 @@ namespace Microsoft.ServiceBus.ActiveDirectorySasTokenFunction
             int serviceBusTokenTimeout;
             if (!int.TryParse(GetSetting("ServiceBusTokenTimeoutSecs"), out serviceBusTokenTimeout))
             {
-                 serviceBusTokenTimeout = (int)TimeSpan.FromHours(8).TotalSeconds;
+                serviceBusTokenTimeout = (int)TimeSpan.FromHours(8).TotalSeconds;
             }
 
             // check the given inputs
@@ -49,7 +49,7 @@ namespace Microsoft.ServiceBus.ActiveDirectorySasTokenFunction
             // get the key config for the desired permission
             string requestedPermission = input.Permission.ToLowerInvariant();
 
-            if (await IsCallerAuthorizedAsync(serviceBusNamespace, path, requestedPermission, ClaimsPrincipal.Current))
+            if (await IsCallerAuthorizedAsync(serviceBusNamespace, path, requestedPermission, ClaimsPrincipal.Current, log))
             {
                 var permissionRule = GetPermissionRule(requestedPermission);
                 if (permissionRule == null)
@@ -71,9 +71,28 @@ namespace Microsoft.ServiceBus.ActiveDirectorySasTokenFunction
             }
         }
 
-        static async Task<bool> IsCallerAuthorizedAsync(string serviceBusNamespace, string path, string requestedPermission, ClaimsPrincipal principal)
+        static async Task<bool> IsCallerAuthorizedAsync(string serviceBusNamespace, string path, string requestedPermission, ClaimsPrincipal principal, TraceWriter log)
         {
-            return principal != null;
+            if (principal?.Identity?.AuthenticationType.Equals("aad") == true &&
+                principal?.Identity?.IsAuthenticated == true)
+            {
+                var appId = GetSetting("WEBSITE_AUTH_CLIENT_ID");
+#if LOGCLAIMS
+                log.Info($"Principal Type: {principal.Identity?.AuthenticationType} IsAuth: {principal.Identity?.IsAuthenticated} Name: {principal.Identity?.Name}");
+#endif
+                foreach (var claim in principal.Claims)
+                {
+#if LOGCLAIMS
+                    log.Info($"Claim Issuer: {claim.Type} Value: {claim.Value}");
+#endif
+                    if (claim.Type.Equals("aud", StringComparison.InvariantCultureIgnoreCase) &&
+                        claim.Value.Equals(appId, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private static Tuple<string, string> GetPermissionRule(string requestedPermission)
